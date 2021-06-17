@@ -33,7 +33,7 @@ class Renderer extends Visitor {
             ctx.partialResolver, ctx.templateName, ctx.indent + indent, source);
 
   final StringSink sink;
-  final List _stack;
+  final List<Object?> _stack;
   final bool lenient;
   final bool htmlEscapeValues;
   final m.PartialResolver? partialResolver;
@@ -41,9 +41,9 @@ class Renderer extends Visitor {
   final String indent;
   final String source;
 
-  void push(value) => _stack.add(value);
+  void push(Object? value) => _stack.add(value);
 
-  Object pop() => _stack.removeLast();
+  Object? pop() => _stack.removeLast();
 
   void write(Object output) => sink.write(output.toString());
 

@@ -1,5 +1,7 @@
 library mustache_test;
 
+import 'dart:convert';
+
 import 'package:mustache_template/mustache.dart';
 import 'package:test/test.dart';
 
@@ -167,6 +169,533 @@ void main() {
             'foo': {'bar': true}
           }),
           equals('true'));
+      final template = Template(
+        """{
+     "layout": {
+        "docket_width": {{#options.printer_docket_width?}}{{options.printer_docket_width}}{{/options.printer_docket_width?}}{{^options.printer_docket_width?}}48{{/options.printer_docket_width?}}
+     },
+     "commands": [
+        {{#pos_setting.receipt_header_messages }}
+        {
+            "command": "text",
+            "data": "{{pos_setting.receipt_header_messages}}",
+            "style": {
+                "align": "{{pos_setting.receipt_header_alignment}}"
+            }
+        },
+        {{/pos_setting.receipt_header_messages}}
+        {
+            "command": "text",
+            "data": "{{company.name}} | {{site.name}}",
+            "style": {
+              "align": "center",
+              "bold": 1
+            }
+        },
+        {{#site.address}}
+        {
+            "command": "text",
+            "data": "{{site.address}}",
+            "style": {
+              "align": "center"
+            }
+        },
+        {{/site.address}}
+        {{#site.contact_phone}}
+        {
+            "command": "text",
+            "data": "Điện thoại: {{ site.contact_phone }}",
+            "style": {
+              "align": "center"
+            }
+        },
+        {{/site.contact_phone}}
+        {{#company.contact_website}}
+        {
+            "command": "text",
+            "data": "Website: {{company.contact_website}}",
+            "style": {
+              "align": "center"
+            }
+        },
+        {{/company.contact_website}}
+         {{#company.business_reg_no}}
+          {{#company.business_reg_no_display}}
+          {
+              "command": "text",
+              "data": "{{company.business_reg_no_display}}: {{company.business_reg_no}}",
+              "style": {
+                  "align": "center"
+              }
+          },
+          {{/company.business_reg_no_display}}
+          {{^company.business_reg_no_display}}
+          {
+              "command": "text",
+              "data": "Số đ.ký kinh doanh: {{company.business_reg_no}}",
+              "style": {
+                  "align": "center"
+              }
+          },
+          {{/company.business_reg_no_display}}
+        {{/company.business_reg_no}}
+         {
+            "command": "feed",
+            "style": {
+              "lines": 2
+            }
+         },
+        {
+            "command": "text",
+            "data": "Phiếu T.Toán {{order.order_no}}",
+            "style": {
+              "align":"center",
+              "bold": 1,
+              "double_width": 1,
+              "double_height": 1
+            }
+        },
+        {
+            "command": "feed",
+            "style" : {
+              "lines" : 2
+            }
+        },
+        {
+            "command": "text",
+            "data": "Giờ vào:| {{order.created_at_readable}}",
+             "style": {
+              "column_format":":10|-:"
+            }
+        },
+        {
+            "command": "text",
+            "data": "Thu ngân:| {{order.saleCompletedBy.display_name}}",
+             "style": {
+              "column_format":":10|-:"
+            }
+        },
+        {{#order.notesForDisplay}}
+        {
+            "command": "text",
+            "data": "Ghi chú: {{ order.notesForDisplay }}",
+            "style": {
+              "align": "left"
+            }
+        },
+        {{/order.notesForDisplay}}
+        {
+            "command": "feed",
+            "style": {
+              "lines": 2
+            }
+        },
+        {
+            "command": "text",
+            "data": "Miêu tả|Thành tiền",
+            "style": {
+                "bold": 1,
+                "column_format":":-|12:"
+            }
+        },
+          {
+            "command": "hline",
+            "style": {
+              "text": "-"
+          }
+        },
+        {{#order.receiptGroupedItems}}
+            {
+              "command": "text",
+              "data":"{{ quantityString }}x {{{ name }}}|{{{ lineBaseTotalAmountStr }}}",
+              "style": {
+                  "column_format":":-|12:",
+                  "bold": 1
+              }
+            },
+            {{#receipt_modifiers}}
+                {
+                  "command": "text",
+                  "data":"{{{ name }}}|{{{ value }}}",
+                  "style": {
+                      "column_format":":-|12:"
+                  }
+                },
+            {{/receipt_modifiers}}
+        {{/order.receiptGroupedItems}}
+         {
+            "command": "hline",
+            "style": {
+              "text": "-"
+            }
+        },
+        {{#order.totals}}
+        {
+            "command": "text",
+            "data": "{{localizedLabel}}|{{ amountDisplay }}",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {{/order.totals}}
+        {
+            "command": "feed"
+        },
+        {{#order.payments}}
+        {
+            "command": "text",
+            "data": "{{method_name}}|{{ display_amount }}",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {{/order.payments}}
+        {
+            "command": "hline",
+            "style": {
+              "text": "-"
+            }
+        },
+        {
+            "command": "feed",
+            "style" : {
+                "lines" : 3
+            }
+        },
+        {
+            "command": "text",
+            "data": "Tất cả giá trị sử dụng tiền {{company.currency_code}}",
+            "style": {
+              "align": "left"
+            }
+        },
+        {{#order.customer.full_name}}
+        {
+          "command": "text",
+          "data": "Khách hàng: {{ order.customer.full_name }}",
+          "style": {
+            "align": "left"
+          }
+        },
+        {{/order.customer.full_name}}
+        {
+          "command": "feed"
+        },
+        {
+            "command": "text",
+            "data": "Điểm thưởng lần này:|{{ order.loyalty_points }} pts",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {
+            "command": "text",
+            "data": "Tổng điểm thưởng:|{{ order.customer.loyalty_points }} pts",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {
+            "command": "feed",
+            "style" : {
+              "lines" : 2
+            }
+        },
+        {
+            "command": "text",
+            {{#order.customer.first_name}}
+            "data": "Cảm ơn và hẹn gặp lại {{order.customer.first_name}}!",
+            {{/order.customer.first_name}}
+            {{^order.customer.first_name}}
+            "data": "Cảm ơn và hẹn gặp lại!",
+            {{/order.customer.first_name}}
+            "style": {
+              "align": "center"
+            }
+        },
+        {
+            "command": "symbol",
+            "data": "{{order.sale_no}}",
+            "style": {
+              "type" : "barcode39",
+              "align": "center",
+              "width": 3,
+              "height": 44
+            }
+        },
+        {
+            "command": "cut"
+        }
+     ]
+  }""",
+        lenient: true,
+      );
+      expect(
+          jsonDecode(template.renderString({
+            'order': {
+              'notesForDisplay': '',
+              'receiptGroupedItems': [
+                {
+                  'quantityString': 1,
+                  'name': 'nan 31',
+                  'lineBaseTotalAmountStr': '100.000 ₫',
+                  'receipt_modifiers': []
+                },
+                {
+                  'quantityString': 2,
+                  'name': 'nan 31',
+                  'lineBaseTotalAmountStr': '200.000 ₫',
+                  'receipt_modifiers': []
+                }
+              ],
+              'sale_no': 'V54MY6B5',
+              'order_no': 'S13',
+              'created_at_readable': '2021.06.15',
+              'loyalty_points': 0,
+              'customer': {
+                'full_name': null,
+                'loyalty_points': 0,
+                'first_name': null
+              },
+              'payments': [
+                {'method_name': 'EFTPOS', 'display_amount': '280.000 ₫'}
+              ],
+              'totals': [
+                {'localizedLabel': 'SUBTOTAL', 'amountDisplay': '280.000 ₫'},
+                {'localizedLabel': 'TOTAL', 'amountDisplay': '280.000 ₫'}
+              ],
+              'saleCompletedBy': {'display_name': 'Vy Cao'}
+            },
+            'company': {
+              'currency_code': 'VND',
+              'logo_url': null,
+              'business_reg_no_display': null,
+              'business_reg_no': null,
+              'name': 'beCoffee',
+              'contact_website': null,
+              'hasLoyaltyAddon': true
+            },
+            'site': {
+              'name': 'Hà Nội',
+              'address':
+                  '98 Phố Hoàng Ngân, Trung Hoà, Thanh Xuân, Hà Nội, Việt Nam',
+              'contact_phone': '+84 91 351 53 51',
+              'logo_url':
+                  'https://firebasestorage.googleapis.com/v0/b/business-engine-dev.appspot.com/o/sites%2F-L-EqlI1OGwZf2nQVrZ4%2F-L-EqlI1OGwZf2nQVrZ5?alt=media&token=ff4542a9-2d2e-4930-866c-8294d84c939c'
+            },
+            'pos_setting': {
+              'takings_show_noncash_payments_breakdown': true,
+              'takings_show_sales_summary': true,
+              'receipt_use_site_logo': false,
+              'receipt_show_served_by': false,
+              'receipt_hide_unit_price': false,
+              'receipt_footer_messages':
+                  'Powered by bePOS – Super Point of Sale Platform www.bepos.io',
+              'receipt_footer_alignment': null,
+              'receipt_header_messages': null,
+              'receipt_header_alignment': null
+            }
+          })) as Map<String, dynamic>?,
+          equals(jsonDecode("""{
+     "layout": {
+        "docket_width": 48
+     },
+     "commands": [
+        {
+            "command": "text",
+            "data": "beCoffee | Hà Nội",
+            "style": {
+              "align": "center",
+              "bold": 1
+            }
+        },
+        {
+            "command": "text",
+            "data": "98 Phố Hoàng Ngân, Trung Hoà, Thanh Xuân, Hà Nội, Việt Nam",
+            "style": {
+              "align": "center"
+            }
+        },
+        {
+            "command": "text",
+            "data": "Điện thoại: +84 91 351 53 51",
+            "style": {
+              "align": "center"
+            }
+        },
+         {
+            "command": "feed",
+            "style": {
+              "lines": 2
+            }
+         },
+        {
+            "command": "text",
+            "data": "Phiếu T.Toán S13",
+            "style": {
+              "align":"center",
+              "bold": 1,
+              "double_width": 1,
+              "double_height": 1
+            }
+        },
+        {
+            "command": "feed",
+            "style" : {
+              "lines" : 2
+            }
+        },
+        {
+            "command": "text",
+            "data": "Giờ vào:| 2021.06.15",
+             "style": {
+              "column_format":":10|-:"
+            }
+        },
+        {
+            "command": "text",
+            "data": "Thu ngân:| Vy Cao",
+             "style": {
+              "column_format":":10|-:"
+            }
+        },
+        {
+            "command": "text",
+            "data": "Ghi chú: ",
+            "style": {
+              "align": "left"
+            }
+        },
+        {
+            "command": "feed",
+            "style": {
+              "lines": 2
+            }
+        },
+        {
+            "command": "text",
+            "data": "Miêu tả|Thành tiền",
+            "style": {
+                "bold": 1,
+                "column_format":":-|12:"
+            }
+        },
+          {
+            "command": "hline",
+            "style": {
+              "text": "-"
+          }
+        },
+            {
+              "command": "text",
+              "data":"1x nan 31|100.000 ₫",
+              "style": {
+                  "column_format":":-|12:",
+                  "bold": 1
+              }
+            },
+            {
+              "command": "text",
+              "data":"2x nan 31|200.000 ₫",
+              "style": {
+                  "column_format":":-|12:",
+                  "bold": 1
+              }
+            },
+         {
+            "command": "hline",
+            "style": {
+              "text": "-"
+            }
+        },
+        {
+            "command": "text",
+            "data": "SUBTOTAL|280.000 ₫",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {
+            "command": "text",
+            "data": "TOTAL|280.000 ₫",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {
+            "command": "feed"
+        },
+        {
+            "command": "text",
+            "data": "EFTPOS|280.000 ₫",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {
+            "command": "hline",
+            "style": {
+              "text": "-"
+            }
+        },
+        {
+            "command": "feed",
+            "style" : {
+                "lines" : 3
+            }
+        },
+        {
+            "command": "text",
+            "data": "Tất cả giá trị sử dụng tiền VND",
+            "style": {
+              "align": "left"
+            }
+        },
+        {
+          "command": "feed"
+        },
+        {
+            "command": "text",
+            "data": "Điểm thưởng lần này:|0 pts",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {
+            "command": "text",
+            "data": "Tổng điểm thưởng:|0 pts",
+            "style": {
+              "column_format":":-|12:"
+            }
+        },
+        {
+            "command": "feed",
+            "style" : {
+              "lines" : 2
+            }
+        },
+        {
+            "command": "text",
+            "data": "Cảm ơn và hẹn gặp lại!",
+            "style": {
+              "align": "center"
+            }
+        },
+        {
+            "command": "symbol",
+            "data": "V54MY6B5",
+            "style": {
+              "type" : "barcode39",
+              "align": "center",
+              "width": 3,
+              "height": 44
+            }
+        },
+        {
+            "command": "cut"
+        }
+     ]
+  }""") as Map<String, dynamic>?));
     });
 
     test('Odd whitespace in tags', () {
